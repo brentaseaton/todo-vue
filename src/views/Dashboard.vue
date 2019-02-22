@@ -51,23 +51,34 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        projects: [
-          { title: 'Design a new website', person: 'The Net Ninja', due: '1st Jan 2019', status: 'ongoing', content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores iusto nisi porro vitae? Perferendis, fugit rerum impedit id nulla modi sequi architecto amet ea blanditiis aut officia alias. Amet, reiciendis.'},
-          { title: 'Code up the homepage', person: 'Chun Li', due: '10th Jan 2019', status: 'complete', content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores iusto nisi porro vitae? Perferendis, fugit rerum impedit id nulla modi sequi architecto amet ea blanditiis aut officia alias. Amet, reiciendis.' },
-          { title: 'Design video thumbnails', person: 'Ryu', due: '20th Dec 2018', status: 'complete', content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores iusto nisi porro vitae? Perferendis, fugit rerum impedit id nulla modi sequi architecto amet ea blanditiis aut officia alias. Amet, reiciendis.' },
-          { title: 'Create a community forum', person: 'Gouken', due: '20th Oct 2018', status: 'overdue', content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores iusto nisi porro vitae? Perferendis, fugit rerum impedit id nulla modi sequi architecto amet ea blanditiis aut officia alias. Amet, reiciendis.' }
-        ]
-      }
-    },
-    methods: {
-      sortBy(prop) {
-        this.projects.sort((a, b) => a[prop] < b[prop] ? -1 : 1)
-      }
+import db from '@/fb'
+
+export default {
+  data() {
+    return {
+      projects: []
     }
+  },
+  methods: {
+    sortBy(prop) {
+      this.projects.sort((a, b) => a[prop] < b[prop] ? -1 : 1)
+    }
+  },
+  created() {
+    db.collection('projects').onSnapshot(res => {
+      const changes = res.docChanges()
+
+      changes.forEach(change => {
+        if (change.type === 'added') {
+          this.projects.push({
+            ...change.doc.data(),
+            id: change.doc.id
+          })
+        }
+      })
+    })
   }
+}
 </script>
 
 <style>
